@@ -1,6 +1,6 @@
 ## 🤖 AI Assistant Bot — Your Smart AI Guide for Everything 🚀
 
-An intelligent and friendly AI chatbot built using **Streamlit** and **Google's Gemini API**. This assistant helps users with a wide range of queries in multiple languages, offering quick, smart, and helpful responses. Perfect for showcasing AI-powered assistance in a demo or sharing with friends!
+This is a powerful and user-friendly AI chatbot developed using **Streamlit** and **Google's Gemini API**. It acts as a virtual career advisor, capable of interacting in English, Urdu, Roman Urdu, and Roman Sindhi. The bot is designed with a clean UI, dark/light mode toggle, and chat history download support.
 
 ---
 
@@ -10,8 +10,9 @@ An intelligent and friendly AI chatbot built using **Streamlit** and **Google's 
 * 🧠 Powered by **Google Gemini Pro**
 * 🌍 Multilingual: English, Urdu, Roman Urdu, Roman Sindhi
 * 🌙 Dark/Light Mode Toggle
-* 💬 Save, View, and Download Chat History
-* 🎨 Custom UI with Logo
+* 💾 Save and view previous chats
+* 🖼️ Custom branding with logo support
+* 📄 Download chat history as a .txt file
 * 📁 Easy Deployment (Local + Cloud)
 
 ---
@@ -69,8 +70,9 @@ project/
 ### 👤 Developer
 
 **Rafiu Ali Memon**
+📧 rafiuali2002@gamil.com 
 📍 Data Science & AI Enthusiast
-🔗 [LinkedIn](https://linkedin.com/in/rafiu-ali) | 🐙 [GitHub](https://github.com/Muhammad-Rafiu-Ali)
+🔗 [LinkedIn](https://linkedin.com/in/rafiu-ali) | 🌐 [GitHub](https://github.com/Muhammad-Rafiu-Ali)
 
 ---
 
