@@ -64,20 +64,7 @@ project/
 
 ---
 
-### 🚀 Deploy for Free (Streamlit Cloud)
 
-1. Push code to **GitHub**
-2. Go to [Streamlit Cloud](https://share.streamlit.io)
-3. Create new app → Select your repo and branch
-4. Set `app.py` as the main file
-5. Go to **Settings > Secrets** and add:
-
-   ```
-   GEMINI_API_KEY = your_actual_key_here
-   ```
-6. Share the link with friends! 🌐
-
----
 
 ### 👤 Developer
 
