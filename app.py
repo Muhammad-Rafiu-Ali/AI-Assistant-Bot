@@ -142,31 +142,49 @@ st.markdown(f"""
             padding: 5px !important;
             margin: 5px 0 !important;
         }}
-        /* Adjust sidebar width on tablet */
-        section[data-testid="stSidebar"] {{
-            min-width: 1px !important;
-        }}
-        /* Button adjustments for mobile */
-        .stButton > button, .stDownloadButton > button {{
+        /* Fix for download button wrapping */
+        .stDownloadButton > button {{
+            white-space: nowrap !important;
+            min-width: auto !important;
             padding: 5px 10px !important;
             font-size: 12px !important;
+            line-height: 1.2 !important;
+            height: auto !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }}
+        /* Fix header wrapping on mobile */
+        .main-title {{
+            font-size: 22px !important;
+            line-height: 1.2 !important;
+            padding: 0.5rem 0 !important;
+            white-space: normal !important;
+            word-wrap: break-word !important;
+        }}
+        /* Improve sidebar responsiveness */
+        section[data-testid="stSidebar"] {{
+            min-width: 1px !important;
+            max-width: 100% !important;
+        }}
+        section[data-testid="stSidebar"] > div:first-child {{
+            width: 100% !important;
+        }}
+        [data-testid="stSidebarNavItems"] {{
+            max-width: 100% !important;
+        }}
+        /* Button adjustments for mobile */
+        .stButton > button {{
+            padding: 5px 10px !important;
+            font-size: 12px !important;
+            white-space: nowrap !important;
         }}
         /* Reduce main column padding */
         .main .block-container {{
             padding: 1rem !important;
             max-width: 100% !important;
-        }}
-        /* Fix for the main content width */
-        .main .block-container {{
-            max-width: 100% !important;
             padding-left: 1rem !important;
             padding-right: 1rem !important;
-        }}
-        /* Reduce header size */
-        .main-title {{
-            font-size: 22px !important;
-            line-height: 1.2 !important;
-            padding: 0.5rem 0 !important;
         }}
         /* Ensure content fits mobile screens */
         img, video {{
@@ -183,6 +201,31 @@ st.markdown(f"""
         [data-testid="stChatMessage"] {{
             background-color: {dark_bg if st.session_state.dark_mode else light_bg} !important;
         }}
+        /* Make header in sidebar responsive and prevent text overflow */
+        [data-testid="stSidebar"] h1 {{
+            font-size: 18px !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            white-space: normal !important;
+            display: block !important;
+        }}
+        /* Fix layout for top row elements */
+        div.row-widget.stButton, 
+        div.row-widget.stDownloadButton {{
+            width: auto !important;
+            min-width: auto !important;
+            display: flex !important;
+            justify-content: center !important;
+        }}
+        /* Fix column layout */
+        div.row-widget.stHorizontal {{
+            flex-wrap: nowrap !important;
+            gap: 5px !important;
+        }}
+        div.row-widget.stHorizontal > div {{
+            flex: none !important;
+            width: auto !important;
+        }}
     }}
     
     @media screen and (max-width: 480px) {{
@@ -197,8 +240,9 @@ st.markdown(f"""
             font-size: 12px !important;
         }}
         .main-title {{  
-            font-size: 20px !important;
+            font-size: 18px !important;
             padding: 0.2rem 0 !important;
+            line-height: 1.3 !important;
         }}
         /* Further reduce element sizes */
         [data-testid="stChatMessage"] {{
@@ -211,14 +255,36 @@ st.markdown(f"""
         }}
         /* Adjust button size for small screens */
         .stButton > button, .stDownloadButton > button {{
-            padding: 3px 8px !important;
+            padding: 3px 6px !important;
             font-size: 10px !important;
+            min-height: 1.5rem !important;
+            height: auto !important;
         }}
         /* Fix chat input for small screens */
         .stChatInput {{
             padding: 0.25rem !important;
             margin-bottom: 1rem !important;
             background-color: {dark_bg if st.session_state.dark_mode else light_bg} !important;
+        }}
+        /* Optimize sidebar for small screens */
+        section[data-testid="stSidebar"] .block-container {{
+            padding-top: 1rem !important;
+            padding-right: 0.5rem !important;
+            padding-left: 0.5rem !important;
+        }}
+        /* Fix top layout for mobile */
+        .stHorizontal > div {{
+            width: auto !important;
+            flex-shrink: 1 !important;
+        }}
+        .stHorizontal > div:first-child, 
+        .stHorizontal > div:last-child {{
+            flex-grow: 0 !important;
+            flex-basis: auto !important;
+        }}
+        .stHorizontal > div:nth-child(2) {{
+            flex-grow: 1 !important;
+            flex-basis: 0 !important;
         }}
     }}
     
@@ -248,10 +314,48 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ---------- Top Layout ----------
+# Special column layout that works better on mobile
+st.markdown("""
+<style>
+/* Custom column layout that works better across all device sizes */
+.app-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+.app-top-row-left {
+    flex: 0 0 auto;
+}
+.app-top-row-center {
+    flex: 1 1 auto;
+    text-align: center;
+    padding: 0 10px;
+}
+.app-top-row-right {
+    flex: 0 0 auto;
+}
+@media (max-width: 768px) {
+    .app-top-row {
+        gap: 5px;
+    }
+}
+</style>
+
+<div class="app-top-row">
+    <div class="app-top-row-left" id="theme-toggle-container"></div>
+    <div class="app-top-row-center" id="title-container"></div>
+    <div class="app-top-row-right" id="download-container"></div>
+</div>
+""", unsafe_allow_html=True)
+
+# Create columns for placement only, content will be inserted via HTML containers
 col1, col2, col3 = st.columns([1, 3, 1])
 
 with col1:
-    if st.button("🌙" if not st.session_state.dark_mode else "☀️"):
+    if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_theme"):
         st.session_state.dark_mode = not st.session_state.dark_mode
         st.rerun()
 
@@ -269,11 +373,28 @@ with col2:
     """, unsafe_allow_html=True)
 
 with col3:
-    st.download_button(
-        "📄 Download",
-        "\n\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in st.session_state.messages]),
-        file_name="chat_history.txt"
-    )
+    # Custom styling for the download button to prevent text wrapping
+    st.markdown("""<style>
+    .download-button button {
+        white-space: nowrap !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: auto !important;
+        height: auto !important;
+    }
+    </style>""", unsafe_allow_html=True)
+    
+    # Add the download button with a div wrapper for CSS targeting
+    with st.container():
+        st.markdown("<div class='download-button'>", unsafe_allow_html=True)
+        st.download_button(
+            "📄 Download",
+            "\n\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in st.session_state.messages]),
+            file_name="chat_history.txt",
+            key="download_chat"
+        )
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ---------- Sidebar ----------
 with st.sidebar:
