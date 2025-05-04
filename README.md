@@ -30,22 +30,10 @@ pip install streamlit google-generativeai Pillow langdetect
 
 Set your **Gemini API Key** as an environment variable:
 
-**Linux/macOS:**
-
-```bash
-export GEMINI_API_KEY=your_api_key_here
-```
-
-**Windows (CMD):**
+**Windows:**
 
 ```bash
 set GEMINI_API_KEY=your_api_key_here
-```
-
-Or inside the app, use:
-
-```python
-os.environ["GEMINI_API_KEY"] = "your_api_key_here"
 ```
 
 ---
