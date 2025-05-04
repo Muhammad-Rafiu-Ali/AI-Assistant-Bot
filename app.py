@@ -50,13 +50,15 @@ button_text_color = dark_text if not st.session_state.dark_mode else light_text
 scrollbar_color = '#555555' if st.session_state.dark_mode else '#cccccc'
 input_bg = '#333333' if st.session_state.dark_mode else '#f0f0f0'
 
-# ---------- Apply Custom CSS with Responsive Design ----------
+# ---------- Apply Custom CSS with Improved Responsive Design ----------
 st.markdown(f"""
     <style>
     /* Base styles */
     html, body, .stApp {{
         background-color: {dark_bg if st.session_state.dark_mode else light_bg} !important;
         color: {text_color} !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
     }}
     section[data-testid="stSidebar"] > div:first-child {{
         background-color: {sidebar_bg};
@@ -95,7 +97,7 @@ st.markdown(f"""
     [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] h4 {{
         color: {text_color} !important;
     }}
-    /* Make input text more visible in light mode */
+    /* Make input text more visible in both modes */
     .stChatInput textarea::placeholder {{
         color: {'#777777' if st.session_state.dark_mode else '#555555'} !important;
     }}
@@ -104,14 +106,33 @@ st.markdown(f"""
         caret-color: {'#ffffff' if st.session_state.dark_mode else '#000000'};
     }}
     
-    /* Responsive design */
-    @media (max-width: 768px) {{
+    /* Fix for dark mode input background in mobile */
+    .stChatInput {{
+        background-color: {dark_bg if st.session_state.dark_mode else light_bg} !important;
+    }}
+    
+    /* Make all Streamlit containers and elements adapt to dark mode */
+    div.stButton > button:hover {{
+        background-color: {dark_bg if st.session_state.dark_mode else light_bg} !important;
+        color: {text_color} !important;
+    }}
+    
+    div[data-baseweb="base-input"] {{
+        background-color: {input_bg} !important; 
+    }}
+    
+    div[data-baseweb="base-input"] > input {{
+        color: {text_color} !important;
+    }}
+    
+    /* Enhanced Responsive design */
+    @media screen and (max-width: 768px) {{
         /* For tablet and mobile */
         h1 {{
-            font-size: 24px !important;
+            font-size: 22px !important;
         }}
         h3 {{
-            font-size: 18px !important;
+            font-size: 16px !important;
         }}
         p {{
             font-size: 14px !important;
@@ -121,32 +142,87 @@ st.markdown(f"""
             padding: 5px !important;
             margin: 5px 0 !important;
         }}
-        /* Adjust sidebar width on mobile */
+        /* Adjust sidebar width on tablet */
         section[data-testid="stSidebar"] {{
-            width: 100% !important;
-            min-width: 0 !important;
+            min-width: 1px !important;
         }}
         /* Button adjustments for mobile */
         .stButton > button, .stDownloadButton > button {{
             padding: 5px 10px !important;
             font-size: 12px !important;
         }}
+        /* Reduce main column padding */
+        .main .block-container {{
+            padding: 1rem !important;
+            max-width: 100% !important;
+        }}
+        /* Fix for the main content width */
+        .main .block-container {{
+            max-width: 100% !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }}
+        /* Reduce header size */
+        .main-title {{
+            font-size: 22px !important;
+            line-height: 1.2 !important;
+            padding: 0.5rem 0 !important;
+        }}
+        /* Ensure content fits mobile screens */
+        img, video {{
+            max-width: 100% !important;
+            height: auto !important;
+        }}
+        /* Make sure the chat elements use dark mode properly */
+        .stChatInput {{
+            background-color: {dark_bg if st.session_state.dark_mode else light_bg} !important;
+        }}
+        .stChatInput > div {{
+            background-color: {input_bg} !important;
+        }}
+        [data-testid="stChatMessage"] {{
+            background-color: {dark_bg if st.session_state.dark_mode else light_bg} !important;
+        }}
     }}
     
-    @media (max-width: 480px) {{
+    @media screen and (max-width: 480px) {{
         /* For small mobile screens */
         h1 {{
-            font-size: 20px !important;
+            font-size: 18px !important;
+        }}
+        h3 {{
+            font-size: 14px !important;
+        }}
+        p {{
+            font-size: 12px !important;
         }}
         .main-title {{  
-            font-size: 24px !important;
+            font-size: 20px !important;
+            padding: 0.2rem 0 !important;
         }}
         /* Further reduce element sizes */
         [data-testid="stChatMessage"] {{
-            margin: 5px 0 !important;
-            padding: 8px !important;
+            margin: 4px 0 !important;
+            padding: 6px !important;
+        }}
+        /* Tighten layout for small screens */
+        .main .block-container {{
+            padding: 0.5rem !important;
+        }}
+        /* Adjust button size for small screens */
+        .stButton > button, .stDownloadButton > button {{
+            padding: 3px 8px !important;
+            font-size: 10px !important;
+        }}
+        /* Fix chat input for small screens */
+        .stChatInput {{
+            padding: 0.25rem !important;
+            margin-bottom: 1rem !important;
+            background-color: {dark_bg if st.session_state.dark_mode else light_bg} !important;
         }}
     }}
+    
+    /* Add typing dots animation */
     .typing-dots span {{
         height: 10px;
         width: 10px;
@@ -167,6 +243,8 @@ st.markdown(f"""
         40% {{ transform: scale(1); }}
     }}
     </style>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 """, unsafe_allow_html=True)
 
 # ---------- Top Layout ----------
@@ -218,7 +296,7 @@ with st.sidebar:
     
     st.session_state.user_language_preference = None
 
-    if st.button("🆕 New Chat"):
+    if st.button("🆑 New Chat"):
         if st.session_state.messages:
             title = st.session_state.messages[0]['content'][:20] + "..." if st.session_state.messages[0]['content'] else "New Chat"
             st.session_state.chat_history.append((title, st.session_state.messages.copy()))
@@ -229,7 +307,7 @@ with st.sidebar:
         st.rerun()
 
     if st.session_state.chat_history:
-        st.markdown(f"<h3 style='color:{text_color};'>💭 Previous Chats</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='color:{text_color};'>🖓 Previous Chats</h3>", unsafe_allow_html=True)
         for i, (title, msgs) in enumerate(st.session_state.chat_history):
             if st.button(title, key=f"chat_{i}"):
                 st.session_state.messages = msgs.copy()
@@ -343,6 +421,23 @@ for msg in st.session_state.messages:
         st.markdown(msg["content"], unsafe_allow_html=True)
 
 # ---------- User Input and privacy note ----------
+# Add custom styling for chat input to ensure visibility in dark mode on mobile
+st.markdown(f"""
+    <style>
+    .stChatInput {{{{  /* Double braces to escape inside f-string */
+        background-color: {dark_bg if st.session_state.dark_mode else light_bg} !important;
+    }}}}
+    .stChatInput > div {{{{  /* Double braces to escape inside f-string */
+        background-color: {input_bg} !important;
+    }}}}
+    .stChatInput textarea {{{{  /* Double braces to escape inside f-string */
+        color: {dark_text if st.session_state.dark_mode else light_text} !important;
+        background-color: {input_bg} !important;
+        caret-color: {dark_text if st.session_state.dark_mode else light_text} !important;
+    }}}}
+    </style>
+""", unsafe_allow_html=True)
+
 prompt = st.chat_input("Ask me anything...")
 
 # Show privacy note under the input box
