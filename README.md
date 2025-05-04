@@ -64,9 +64,14 @@ Visit: `http://localhost:8501` in your browser.
 
 ```
 project/
-├── app.py            # Streamlit chatbot app
-├── logo.png          # Logo shown in the sidebar
-└── README.md         # Project documentation
+├── app.py                    # Streamlit chatbot app
+├── logo.png                  # Logo displayed in sidebar
+├── requirements.txt          # Required Python packages
+├── .env                      # Local API key (for development)
+├── .streamlit/
+│   └── secrets.toml          # Secure API key (for deployment)
+└── README.md                 # This file
+
 ```
 
 ---
