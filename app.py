@@ -339,12 +339,13 @@ st.markdown("""
     align-items: center;
     justify-content: flex-start;
     gap: 10px;
+    min-width: 40px; /* Ensure minimum width for the toggle button */
 }
 
 .header-center {
     flex: 1;
     text-align: center;
-    padding: 0 15px;
+    padding: 0 10px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -354,21 +355,25 @@ st.markdown("""
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    min-width: 40px; /* Ensure minimum width for the download button */
 }
 
 .theme-toggle button {
-    padding: 6px 12px !important;
+    padding: 6px 8px !important;
     border-radius: 20px !important;
     min-height: 36px !important;
+    min-width: 38px !important;
+    width: 38px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
 }
 
 .download-button button {
-    padding: 6px 12px !important;
+    padding: 6px 8px !important;
     border-radius: 20px !important;
     min-height: 36px !important;
+    min-width: 100px !important;
     white-space: nowrap !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -378,6 +383,7 @@ st.markdown("""
 @media (max-width: 768px) {
     .header-center {
         font-size: 0.9em;
+        padding: 0 5px;
     }
     .theme-toggle button, .download-button button {
         padding: 4px 8px !important;
@@ -386,8 +392,72 @@ st.markdown("""
 }
 
 @media (max-width: 576px) {
+    /* Mobile layout with both buttons on the same row */
+    .header-container {
+        display: flex;
+        flex-direction: column;
+        padding: 5px 0;
+    }
+    
+    .header-left, .header-right {
+        flex: 0 0 auto;
+        padding: 5px 10px;
+    }
+    
+    /* Create a separate top row for buttons */
+    .header-container::before {
+        content: '';
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    /* First row with buttons side by side */
+    .header-left, .header-right {
+        position: static;
+        display: flex;
+    }
+    
+    .header-left {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+    }
+    
+    .header-right {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 10;
+    }
+    
+    /* Title below the buttons */
     .header-center {
+        width: 100%;
+        margin-top: 40px; /* Space for buttons above */
         font-size: 0.8em;
+        text-align: center;
+        padding: 5px 0;
+    }
+    
+    .main-title {
+        font-size: 22px !important;
+    }
+    
+    /* Make buttons more compact on mobile */
+    .theme-toggle button {
+        min-width: 32px !important;
+        width: 32px !important;
+        min-height: 32px !important;
+        padding: 3px !important;
+    }
+    
+    .download-button button {
+        min-width: 90px !important;
+        min-height: 32px !important;
+        padding: 3px 6px !important;
     }
 }
 </style>
@@ -399,8 +469,8 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Use containers for better control and positioning
-left_container, center_container, right_container = st.columns([1, 6, 1])
+# Use containers for better control and positioning - equal widths for mobile view
+left_container, center_container, right_container = st.columns([1, 4, 1])
 
 with left_container:
     # Wrap the toggle theme button in a container with the class
@@ -412,6 +482,9 @@ with left_container:
 
 with center_container:
     st.markdown(f"""
+        <h1 class='main-title' style='text-align: center; font-size: 32px; color: #4da6ff; animation: fadeIn 5s; margin: 0;'>
+            🤖 AI Assistant Bot — Your Smart AI Guide for Everything 🚀
+        </h1>
         <style>
         @keyframes fadeIn {{
             from {{opacity: 0;}}
