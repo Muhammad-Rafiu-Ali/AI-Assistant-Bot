@@ -24,6 +24,10 @@ if "chat_history" not in st.session_state:
 if "processing_message" not in st.session_state:
     st.session_state.processing_message = False
     
+# ---------- Welcome Popup Control ----------
+if "show_welcome" not in st.session_state:
+    st.session_state.show_welcome = True
+    
 # ---------- Language Tracking ----------
 if "current_language" not in st.session_state:
     st.session_state.current_language = "en"
@@ -311,6 +315,8 @@ st.markdown(f"""
     </style>
     
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+
 """, unsafe_allow_html=True)
 
 # ---------- Top Layout ----------
@@ -355,15 +361,25 @@ st.markdown("""
 col1, col2, col3 = st.columns([1, 3, 1])
 
 with col1:
+    # Add styling to center the button vertically
+    st.markdown("""
+    <style>
+    [data-testid="stButton"] {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
     if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_theme"):
         st.session_state.dark_mode = not st.session_state.dark_mode
         st.rerun()
 
 with col2:
     st.markdown(f"""
-        <h1 class='main-title' style='text-align: center; font-size: 36px; color: #4da6ff; animation: fadeIn 5s;'>
-            🤖 AI Assistant Bot — Your Smart AI Guide for Everything 🚀
-        </h1>
+        
         <style>
         @keyframes fadeIn {{
             from {{opacity: 0;}}
@@ -373,8 +389,9 @@ with col2:
     """, unsafe_allow_html=True)
 
 with col3:
-    # Custom styling for the download button to prevent text wrapping
-    st.markdown("""<style>
+    # Custom styling for the download button to prevent text wrapping and align it vertically
+    st.markdown("""
+    <style>
     .download-button button {
         white-space: nowrap !important;
         display: inline-flex !important;
@@ -383,18 +400,65 @@ with col3:
         width: auto !important;
         height: auto !important;
     }
+    .download-button-container {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        height: 100%;
+    }
     </style>""", unsafe_allow_html=True)
     
     # Add the download button with a div wrapper for CSS targeting
     with st.container():
-        st.markdown("<div class='download-button'>", unsafe_allow_html=True)
+        st.markdown("<div class='download-button-container'><div class='download-button'>", unsafe_allow_html=True)
         st.download_button(
             "📄 Download",
             "\n\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in st.session_state.messages]),
             file_name="chat_history.txt",
             key="download_chat"
         )
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown("</div></div>", unsafe_allow_html=True)
+
+# ---------- Welcome Popup Component ----------
+# Move the welcome popup to after the top navigation so it appears below it
+if st.session_state.show_welcome:
+    # Create styles for centered welcome card
+    st.markdown("""
+    <style>
+    .welcome-card {
+        background-color: var(--background-color);
+        border: 2px solid #4da6ff;
+        border-radius: 10px;
+        padding: 30px;
+        margin: 20px auto 30px;
+        max-width: 500px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        animation: slideIn 0.6s ease-out;
+    }
+    @keyframes slideIn {
+        0% { opacity: 0; transform: translateY(-30px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    # Create a welcome card centered on the page
+    cols = st.columns([1, 6, 1])
+    with cols[1]:
+        st.markdown(f"""
+        <div class="welcome-card" style="background-color: {dark_bg if st.session_state.dark_mode else light_bg};">
+            <h2 style="color: #4da6ff; margin-top: 0;">🤖 Welcome to AI Assistant Bot</h2>
+            <p style="margin: 15px 0; font-size: 16px; color: {text_color};">Your Smart AI Guide for Everything 🚀</p>
+            <p style="margin: 15px 0; font-size: 16px; color: {text_color};">Made by Rafiu Ali Memon ❤️</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Add the button using Streamlit's native button which works more reliably
+        if st.button("Get Started", key="welcome_close", type="primary", use_container_width=True):
+            st.session_state.show_welcome = False
+            st.rerun()
+# Nothing here - Removed the duplicated section
 
 # ---------- Sidebar ----------
 with st.sidebar:
@@ -417,7 +481,7 @@ with st.sidebar:
     
     st.session_state.user_language_preference = None
 
-    if st.button("🆑 New Chat"):
+    if st.button("🆕 New Chat"):
         if st.session_state.messages:
             title = st.session_state.messages[0]['content'][:20] + "..." if st.session_state.messages[0]['content'] else "New Chat"
             st.session_state.chat_history.append((title, st.session_state.messages.copy()))
@@ -428,7 +492,7 @@ with st.sidebar:
         st.rerun()
 
     if st.session_state.chat_history:
-        st.markdown(f"<h3 style='color:{text_color};'>🖓 Previous Chats</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='color:{text_color};'>💭 Previous Chats</h3>", unsafe_allow_html=True)
         for i, (title, msgs) in enumerate(st.session_state.chat_history):
             if st.button(title, key=f"chat_{i}"):
                 st.session_state.messages = msgs.copy()
@@ -442,7 +506,7 @@ with st.sidebar:
     st.markdown("<hr style='margin-top: 20px; margin-bottom: 20px;'>", unsafe_allow_html=True)
     
     # Add feedback button at the bottom of the sidebar
-    st.markdown(f"""<div style='text-align: center;'><a href='https://docs.google.com/forms/u/0/' target='_blank'><button style='background-color: #4CAF50; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;'>Feedback</button></a></div>""", unsafe_allow_html=True)
+    st.markdown(f"""<div style='text-align: center;'><a href='https://forms.gle/5xxtYbeLuv9Njop6A' target='_blank'><button style='background-color: #4CAF50; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;'>Feedback</button></a></div>""", unsafe_allow_html=True)
 
 # ---------- Language Detection Setup ----------
 DetectorFactory.seed = 0
