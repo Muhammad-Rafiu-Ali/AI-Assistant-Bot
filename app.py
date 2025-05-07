@@ -482,9 +482,6 @@ with left_container:
 
 with center_container:
     st.markdown(f"""
-        <h1 class='main-title' style='text-align: center; font-size: 32px; color: #4da6ff; animation: fadeIn 5s; margin: 0;'>
-            🤖 AI Assistant Bot — Your Smart AI Guide for Everything 🚀
-        </h1>
         <style>
         @keyframes fadeIn {{
             from {{opacity: 0;}}
