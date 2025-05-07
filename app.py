@@ -320,66 +320,98 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ---------- Top Layout ----------
-# Special column layout that works better on mobile
+# Improved header with buttons on opposite sides
 st.markdown("""
 <style>
-/* Custom column layout that works better across all device sizes */
-.app-top-row {
+/* Professional header layout with elements on opposite sides */
+.header-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: nowrap;
     width: 100%;
     margin-bottom: 1rem;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
 }
-.app-top-row-left {
-    flex: 0 0 auto;
+
+.header-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
 }
-.app-top-row-center {
-    flex: 1 1 auto;
+
+.header-center {
+    flex: 1;
     text-align: center;
-    padding: 0 10px;
+    padding: 0 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.app-top-row-right {
-    flex: 0 0 auto;
+
+.header-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
+
+.theme-toggle button {
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    min-height: 36px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.download-button button {
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    min-height: 36px !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
 @media (max-width: 768px) {
-    .app-top-row {
-        gap: 5px;
+    .header-center {
+        font-size: 0.9em;
+    }
+    .theme-toggle button, .download-button button {
+        padding: 4px 8px !important;
+        min-height: 32px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .header-center {
+        font-size: 0.8em;
     }
 }
 </style>
 
-<div class="app-top-row">
-    <div class="app-top-row-left" id="theme-toggle-container"></div>
-    <div class="app-top-row-center" id="title-container"></div>
-    <div class="app-top-row-right" id="download-container"></div>
+<div class="header-container">
+    <div class="header-left" id="theme-toggle-container"></div>
+    <div class="header-center" id="title-container"></div>
+    <div class="header-right" id="download-container"></div>
 </div>
 """, unsafe_allow_html=True)
 
-# Create columns for placement only, content will be inserted via HTML containers
-col1, col2, col3 = st.columns([1, 3, 1])
+# Use containers for better control and positioning
+left_container, center_container, right_container = st.columns([1, 6, 1])
 
-with col1:
-    # Add styling to center the button vertically
-    st.markdown("""
-    <style>
-    [data-testid="stButton"] {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
+with left_container:
+    # Wrap the toggle theme button in a container with the class
+    st.markdown('<div class="theme-toggle">', unsafe_allow_html=True)
     if st.button("🌙" if not st.session_state.dark_mode else "☀️", key="toggle_theme"):
         st.session_state.dark_mode = not st.session_state.dark_mode
         st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
-with col2:
+with center_container:
     st.markdown(f"""
-        
         <style>
         @keyframes fadeIn {{
             from {{opacity: 0;}}
@@ -388,36 +420,16 @@ with col2:
         </style>
     """, unsafe_allow_html=True)
 
-with col3:
-    # Custom styling for the download button to prevent text wrapping and align it vertically
-    st.markdown("""
-    <style>
-    .download-button button {
-        white-space: nowrap !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        width: auto !important;
-        height: auto !important;
-    }
-    .download-button-container {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        height: 100%;
-    }
-    </style>""", unsafe_allow_html=True)
-    
-    # Add the download button with a div wrapper for CSS targeting
-    with st.container():
-        st.markdown("<div class='download-button-container'><div class='download-button'>", unsafe_allow_html=True)
-        st.download_button(
-            "📄 Download",
-            "\n\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in st.session_state.messages]),
-            file_name="chat_history.txt",
-            key="download_chat"
-        )
-        st.markdown("</div></div>", unsafe_allow_html=True)
+with right_container:
+    # Add the download button with better styling
+    st.markdown('<div class="download-button">', unsafe_allow_html=True)
+    st.download_button(
+        "📄 Download",
+        "\n\n".join([f"{m['role'].capitalize()}: {m['content']}" for m in st.session_state.messages]),
+        file_name="chat_history.txt",
+        key="download_chat"
+    )
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ---------- Welcome Popup Component ----------
 # Move the welcome popup to after the top navigation so it appears below it
@@ -481,7 +493,7 @@ with st.sidebar:
     
     st.session_state.user_language_preference = None
 
-    if st.button("🆕 New Chat"):
+    if st.button("🆑 New Chat"):
         if st.session_state.messages:
             title = st.session_state.messages[0]['content'][:20] + "..." if st.session_state.messages[0]['content'] else "New Chat"
             st.session_state.chat_history.append((title, st.session_state.messages.copy()))
@@ -492,7 +504,7 @@ with st.sidebar:
         st.rerun()
 
     if st.session_state.chat_history:
-        st.markdown(f"<h3 style='color:{text_color};'>💭 Previous Chats</h3>", unsafe_allow_html=True)
+        st.markdown(f"<h3 style='color:{text_color};'>🖓 Previous Chats</h3>", unsafe_allow_html=True)
         for i, (title, msgs) in enumerate(st.session_state.chat_history):
             if st.button(title, key=f"chat_{i}"):
                 st.session_state.messages = msgs.copy()
@@ -506,7 +518,7 @@ with st.sidebar:
     st.markdown("<hr style='margin-top: 20px; margin-bottom: 20px;'>", unsafe_allow_html=True)
     
     # Add feedback button at the bottom of the sidebar
-    st.markdown(f"""<div style='text-align: center;'><a href='https://forms.gle/5xxtYbeLuv9Njop6A' target='_blank'><button style='background-color: #4CAF50; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;'>Feedback</button></a></div>""", unsafe_allow_html=True)
+    st.markdown(f"""<div style='text-align: center;'><a href='https://docs.google.com/forms/u/0/' target='_blank'><button style='background-color: #4CAF50; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;'>Feedback</button></a></div>""", unsafe_allow_html=True)
 
 # ---------- Language Detection Setup ----------
 DetectorFactory.seed = 0
