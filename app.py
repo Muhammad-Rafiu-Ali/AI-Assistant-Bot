@@ -37,11 +37,23 @@ if "user_language_preference" not in st.session_state:
     st.session_state.user_language_preference = None
 
 # ---------- Gemini API Key ----------
-api_key = os.getenv("GEMINI_API_KEY")
-if not api_key:
-    st.error("API key not found. Please set GEMINI_API_KEY in your environment.")
+# Use a hardcoded API key for demonstration purposes
+# In a production environment, use environment variables or secure storage
+if "api_key" not in st.session_state:
+    # You can set a default API key here if you have one
+    st.session_state.api_key = "YOUR_API_KEY_HERE"  # Replace with your actual API key
+    
+    # Alternatively, try to get it from environment variables
+    env_api_key = os.getenv("GEMINI_API_KEY")
+    if env_api_key:
+        st.session_state.api_key = env_api_key
+
+# Configure the Gemini API with the key
+if st.session_state.api_key and st.session_state.api_key != "YOUR_API_KEY_HERE":
+    genai.configure(api_key=st.session_state.api_key, transport="rest")
 else:
-    genai.configure(api_key=api_key, transport="rest")
+    # If no API key is set, show a less prominent message
+    st.warning("API key not configured. Chat functionality will be limited.", icon="⚠️")
 
 # ---------- Theme Settings ----------
 dark_bg = '#1e1e1e'
@@ -676,11 +688,16 @@ def detect_language(text):
         return st.session_state.current_language
 
 # ---------- Initialize Gemini Chat ----------
-if "chat" not in st.session_state and not st.session_state.processing_message:
-    model = genai.GenerativeModel('gemini-1.5-pro-latest')
-    st.session_state.chat = model.start_chat(history=[
-        {"role": m["role"], "parts": [m["content"]]} for m in st.session_state.messages
-    ])
+if st.session_state.api_key and "chat" not in st.session_state and not st.session_state.processing_message:
+    try:
+        model = genai.GenerativeModel('gemini-1.5-pro-latest')
+        st.session_state.chat = model.start_chat(history=[
+            {"role": m["role"], "parts": [m["content"]]} for m in st.session_state.messages
+        ])
+    except Exception as e:
+        st.error(f"Error initializing chat: {e}")
+        if "chat" in st.session_state:
+            del st.session_state.chat
 
 # ---------- Show All Messages ----------
 for msg in st.session_state.messages:
@@ -722,6 +739,26 @@ if prompt and not st.session_state.processing_message:
     with st.chat_message("user"):
         st.markdown(prompt, unsafe_allow_html=True)
     st.session_state.messages.append({"role": "user", "content": prompt})
+    
+    # Check if API key is set and valid
+    if not st.session_state.api_key or st.session_state.api_key == "YOUR_API_KEY_HERE":
+        with st.chat_message("assistant"):
+            st.markdown("⚠️ I can't respond because the API key is not configured. Please contact the administrator.")
+        st.session_state.messages.append({"role": "assistant", "content": "⚠️ I can't respond because the API key is not configured. Please contact the administrator."})
+        st.session_state.processing_message = False
+        st.rerun()
+        
+    # Check if chat is initialized
+    if "chat" not in st.session_state:
+        try:
+            model = genai.GenerativeModel('gemini-1.5-pro-latest')
+            st.session_state.chat = model.start_chat(history=[
+                {"role": m["role"], "parts": [m["content"]]} for m in st.session_state.messages
+            ])
+        except Exception as e:
+            st.error(f"Error initializing chat: {e}")
+            st.session_state.processing_message = False
+            st.rerun()
     
     try:
         # Detect language from user input
@@ -870,7 +907,20 @@ Pechida sawalan lae bi, jeker zaroori huje ta panhjo jawab bullet points men war
         st.session_state.messages.append({"role": "assistant", "content": output})
         
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error(f"Error: {str(e)}")
+        # If there's an API error, it might be due to an invalid API key
+        if "API" in str(e) or "key" in str(e).lower() or "auth" in str(e).lower():
+            st.warning("There might be an issue with your API key. Please check if it's valid.")
+        
+        # Add error message to chat for debugging
+        error_msg = f"⚠️ Error: {str(e)}"
+        with st.chat_message("assistant"):
+            st.markdown(error_msg)
+        st.session_state.messages.append({"role": "assistant", "content": error_msg})
+        
+        # If chat initialization failed, try to reinitialize
+        if "chat" in st.session_state:
+            del st.session_state.chat
     
     # Reset processing flag and rerun to update UI
     st.session_state.processing_message = False
